@@ -3,31 +3,30 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using TickTackToe.Code.Handlers.Input;
+using TickTackToe.Code.Entities;
+using TickTackToe.Code.Handlers;
 
 namespace TickTackToe
 {
 	internal class TickTackToeGame : Game
 	{
-		private GraphicsDeviceManager _graphics;
-		private SpriteBatch _spriteBatch;
-		private IInputHandler[] _inputHandlers;
+		private readonly GraphicsDeviceManager _graphicsDeviceManager;
+		private readonly KeyboardHandler _keyboardHandler;
+
+		private Board _board;
 
 		public TickTackToeGame()
 		{
-			_graphics = new GraphicsDeviceManager(this)
+			_graphicsDeviceManager = new GraphicsDeviceManager(this)
 			{
 				HardwareModeSwitch = false
 			};
 
-			_inputHandlers = new[]
+			_keyboardHandler = new KeyboardHandler(this, new Dictionary<Keys, Action>
 			{
-				new KeyboardHandler(new Dictionary<Keys, Action>
-				{
-					[Keys.Escape] = Exit,
-					[Keys.F12] = _graphics.ToggleFullScreen
-				})
-			};
+				[Keys.Escape] = Exit,
+				[Keys.F12] = _graphicsDeviceManager.ToggleFullScreen
+			});
 
 			Content.RootDirectory = "Content";
 			IsMouseVisible = true;
@@ -36,25 +35,32 @@ namespace TickTackToe
 		protected override void Initialize()
 		{
 			base.Initialize();
+
+			_board = new Board(this);
 		}
 
 		protected override void LoadContent()
 		{
-			_spriteBatch = new SpriteBatch(GraphicsDevice);
+			Services.AddService(new SpriteBatch(GraphicsDevice));
 		}
 
 		protected override void Update(GameTime gameTime)
 		{
-			Array.ForEach(_inputHandlers, inputHandler => inputHandler.Handle());
-
 			base.Update(gameTime);
 		}
 
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.Black);
+			_board.Draw(gameTime);
 
 			base.Draw(gameTime);
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			_keyboardHandler.Dispose();
+
+			base.Dispose(disposing);
 		}
 	}
 }

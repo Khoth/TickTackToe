@@ -1,55 +1,63 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 
 namespace TickTackToe.Code.Entities
 {
-	public class Cell : IDrawable, IUpdateable
+	public class Cell : IDrawable
 	{
+		private readonly Game _game;
 		private readonly SpriteBatch _spriteBatch;
 		private readonly Texture2D _texture;
-		private readonly Rectangle _rectangle;
-
-		private bool _enabled = true;
+		private readonly Rectangle _bounds;
+		private Sign _sign;
 
 		public int DrawOrder => 0;
+		
 		public bool Visible => true;
-		public bool Enabled => _enabled;
+		
+		public bool Enabled => true;
+		
 		public int UpdateOrder => 0;
+
+		public SignTypes SignType => _sign?.Type ?? SignTypes.None;
 
 		public event EventHandler<EventArgs> DrawOrderChanged;
 		public event EventHandler<EventArgs> VisibleChanged;
-		public event EventHandler<EventArgs> EnabledChanged;
-		public event EventHandler<EventArgs> UpdateOrderChanged;
 
-		private Color _tempColor = Color.White;
-
-		public Cell(Game game, Rectangle rectangle)
+		public Cell(Game game, Rectangle bounds)
 		{
+			_game = game;
 			_spriteBatch = game.Services.GetService<SpriteBatch>();
 			_texture = game.Content.Load<Texture2D>("cell");
-			_rectangle = rectangle;
+			_bounds = bounds;
 		}
 
 		public void Draw(GameTime gameTime)
 		{
 			_spriteBatch.Begin();
-			_spriteBatch.Draw(_texture, _rectangle, _tempColor);
+			_spriteBatch.Draw(_texture, _bounds, Color.White);
 			_spriteBatch.End();
+
+			_sign?.Draw(gameTime);
 		}
 
-		public void Update(GameTime gameTime)
+		public bool Contanis(Point point)
 		{
-			if (!Enabled) return;
+			return _bounds.Contains(point);
+		}
 
-			var mouseState = Mouse.GetState();
-
-			if (mouseState.LeftButton == ButtonState.Pressed &&
-				_rectangle.Contains(mouseState.Position))
+		public void SetSign(SignTypes signType)
+		{
+			switch (signType)
 			{
-				_tempColor = Color.Red;
-				_enabled = false;
+				case SignTypes.Cross:
+					_sign = new Cross(_game, _bounds);
+					break;
+
+				case SignTypes.Zero:
+					_sign = new Zero(_game, _bounds);
+					break;
 			}
 		}
 	}

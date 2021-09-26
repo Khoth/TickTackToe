@@ -7,9 +7,9 @@ namespace TickTackToe.Code.Logic
 {
 	public class LineBuilder
 	{
-		private readonly ICellIterator _iterator;
+		private readonly ILineBuildingStrategy _iterator;
 
-		public LineBuilder(ICellIterator iterator)
+		public LineBuilder(ILineBuildingStrategy iterator)
 		{
 			_iterator = iterator;
 		}

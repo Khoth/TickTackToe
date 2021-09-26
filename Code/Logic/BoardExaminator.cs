@@ -7,20 +7,20 @@ namespace TickTackToe.Code.Logic
 {
 	public class BoardExaminator
 	{
-		private readonly ICellIterator[] _cellIterators;
+		private readonly ILineBuildingStrategy[] _lineBuildingStrategies;
 		private readonly LineBuilder[] _lineBuilders;
 
 		public BoardExaminator()
 		{
-			_cellIterators = new ICellIterator[]
+			_lineBuildingStrategies = new ILineBuildingStrategy[]
 			{
-				new HorizontalCellIterator(),
-				new VerticalCellIterator(),
-				new DiagonalCellIterator(),
-				new Diagonal2CellIterator()
+				new HorizontalLineBuildingStrategy(),
+				new VerticalLineBuildingStrategy(),
+				new DiagonalLineBuildingStrategy(),
+				new Diagonal2LineBuildingStrategy()
 			};
 
-			_lineBuilders = _cellIterators
+			_lineBuilders = _lineBuildingStrategies
 				.Select(x => new LineBuilder(x))
 				.ToArray();
 		}

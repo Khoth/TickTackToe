@@ -3,7 +3,7 @@ using TickTackToe.Code.Entities;
 
 namespace TickTackToe.Code.Logic
 {
-	public interface ICellIterator
+	public interface ILineBuildingStrategy
 	{
 		Point? GetNext(Cell[,] cells, Point from);
 	}

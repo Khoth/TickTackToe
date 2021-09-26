@@ -1,50 +1,38 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
+using TickTackToe.Code.Entities.Base;
+using TickTackToe.Code.Entities.Signs;
 
 namespace TickTackToe.Code.Entities
 {
-	public class Cell : IDrawable
+	public class Cell : Sprite
 	{
-		private readonly Game _game;
-		private readonly SpriteBatch _spriteBatch;
-		private readonly Texture2D _texture;
-		private readonly Rectangle _bounds;
+		private readonly GameServiceContainer _serviceContainer;
+
+		private Texture2D _texture;
 		private Sign _sign;
 
-		public int DrawOrder => 0;
-		
-		public bool Visible => true;
-		
-		public bool Enabled => true;
-		
-		public int UpdateOrder => 0;
-
-		public SignTypes SignType => _sign?.Type ?? SignTypes.None;
-
-		public event EventHandler<EventArgs> DrawOrderChanged;
-		public event EventHandler<EventArgs> VisibleChanged;
-
-		public Cell(Game game, Rectangle bounds)
+		public Sign Sign
 		{
-			_game = game;
-			_spriteBatch = game.Services.GetService<SpriteBatch>();
-			_texture = game.Content.Load<Texture2D>("cell");
-			_bounds = bounds;
+			get => _sign;
+			private set => _sign = value;
 		}
 
-		public void Draw(GameTime gameTime)
+		public Cell(GameServiceContainer serviceContainer, Rectangle bounds)
+			: base(serviceContainer, bounds)
 		{
-			_spriteBatch.Begin();
-			_spriteBatch.Draw(_texture, _bounds, Color.White);
-			_spriteBatch.End();
-
-			_sign?.Draw(gameTime);
+			_serviceContainer = serviceContainer;
 		}
 
-		public bool Contanis(Point point)
+		public override void LoadContent()
 		{
-			return _bounds.Contains(point);
+			_texture = _contentManager.Load<Texture2D>("cell");
+		}
+
+		public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+		{
+			spriteBatch.Draw(_texture, _bounds, Color.White);
+			Sign?.Draw(gameTime, spriteBatch);
 		}
 
 		public void SetSign(SignTypes signType)
@@ -52,13 +40,15 @@ namespace TickTackToe.Code.Entities
 			switch (signType)
 			{
 				case SignTypes.Cross:
-					_sign = new Cross(_game, _bounds);
+					_sign = new Cross(_serviceContainer, _bounds);
 					break;
 
 				case SignTypes.Zero:
-					_sign = new Zero(_game, _bounds);
+					_sign = new Zero(_serviceContainer, _bounds);
 					break;
 			}
+
+			_sign?.LoadContent();
 		}
 	}
 }

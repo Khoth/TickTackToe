@@ -1,41 +1,45 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TickTackToe.Code.Entities;
+using TickTackToe.Code.Handlers;
 
 namespace TickTackToe
 {
 	internal class TickTackToeGame : Game
 	{
-		private readonly GraphicsDeviceManager _graphicsDeviceManager;
+		private readonly MouseInputHandler _mouseInputHandler;
 
+		private SpriteBatch _spriteBatch;
 		private Board _board;
 
 		public TickTackToeGame()
 		{
-			_graphicsDeviceManager = new GraphicsDeviceManager(this)
-			{
-				HardwareModeSwitch = false,
-			};
-
-			Content.RootDirectory = "Content";
+			_ = new GraphicsDeviceManager(this) { HardwareModeSwitch = false };
+			
 			IsMouseVisible = true;
+			
+			_mouseInputHandler = new MouseInputHandler();
+			Services.AddService(_mouseInputHandler);
+
+			_board = new Board(Services, 3, 3);
 		}
 
 		protected override void Initialize()
 		{
+			_board.Initialize();
 			base.Initialize();
-
-			_board = new Board(this);
 		}
 
 		protected override void LoadContent()
 		{
-			Services.AddService(new SpriteBatch(GraphicsDevice));
+			_spriteBatch = new SpriteBatch(GraphicsDevice);
+			_board.LoadContents();
 		}
 
 		protected override void Update(GameTime gameTime)
 		{
-			_board.Update(gameTime);
+			_mouseInputHandler.Update(gameTime);
+
 			base.Update(gameTime);
 		}
 
@@ -43,7 +47,10 @@ namespace TickTackToe
 		{
 			GraphicsDevice.Clear(Color.Black);
 
-			_board.Draw(gameTime);
+			_spriteBatch.Begin();
+			_board.Draw(gameTime, _spriteBatch);
+			_spriteBatch.End();
+
 			base.Draw(gameTime);
 		}
 	}

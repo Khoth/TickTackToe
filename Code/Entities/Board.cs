@@ -1,83 +1,74 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
+using TickTackToe.Code.Extensions;
+using TickTackToe.Code.Handlers;
 
 namespace TickTackToe.Code.Entities
 {
-	public class Board : IDrawable, IUpdateable
+	public class Board
 	{
-		private const int CellSide = 102;
-		private const int RowsCount = 3;
-		private const int ColumnsCount = 3;
+		private int _cellSide = 102, _turn = 1; // TODO transfer to another entities
 
-		private int _turn = 1;
-
-		private readonly SpriteBatch _spriteBatch;
+		private readonly GameServiceContainer _serviceContainer;
+		private readonly MouseInputHandler _mouseInputHandler;
 		private readonly Cell[,] _cells;
-		private readonly Rectangle _boardBounds;
 
-		public int DrawOrder => 0;
-		public int UpdateOrder => 0;
-		public bool Visible => true;
-		public bool Enabled => true;
+		private int RowsCount => _cells.GetLength(0);
 
-		public event EventHandler<EventArgs> DrawOrderChanged;
-		public event EventHandler<EventArgs> VisibleChanged;
-		public event EventHandler<EventArgs> EnabledChanged;
-		public event EventHandler<EventArgs> UpdateOrderChanged;
+		private int ColumnsCount => _cells.GetLength(1);
 
-		public Board(Game game)
+		public Board(GameServiceContainer serviceContainer, int rowsCount, int columnsCount)
 		{
-			_spriteBatch = game.Services.GetService<SpriteBatch>();
-			_cells = new Cell[RowsCount, ColumnsCount];
+			_serviceContainer = serviceContainer;
+			_cells = new Cell[rowsCount, columnsCount];
+			_mouseInputHandler = _serviceContainer.GetService<MouseInputHandler>();
+			_mouseInputHandler.MouseLeftButtonClicked += MouseInputHandler_MouseLeftButtonClicked;
+		}
 
-			var viewport = _spriteBatch.GraphicsDevice.Viewport;
+		~Board()
+		{
+			_mouseInputHandler.MouseLeftButtonClicked -= MouseInputHandler_MouseLeftButtonClicked;
+		}
+
+		public void Initialize()
+		{
+			var graphicsDeviceService = _serviceContainer.GetService<IGraphicsDeviceService>();
+			var viewport = graphicsDeviceService.GraphicsDevice.Viewport;
 
 			var startPoint = new Point(
-				(viewport.Width - RowsCount * CellSide) / 2,
-				(viewport.Height - ColumnsCount * CellSide) / 2);
-
-			_boardBounds = new Rectangle(startPoint.X, startPoint.Y,
-				RowsCount * CellSide, ColumnsCount * CellSide);
+				(viewport.Width - RowsCount * _cellSide) / 2,
+				(viewport.Height - ColumnsCount * _cellSide) / 2);
 
 			for (var y = 0; y < ColumnsCount; y++)
 			{
 				for (var x = 0; x < RowsCount; x++)
 				{
 					var cellBounds = new Rectangle(
-						startPoint.X + CellSide * x,
-						startPoint.Y + CellSide * y,
-						CellSide,
-						CellSide);
+						startPoint.X + _cellSide * x,
+						startPoint.Y + _cellSide * y,
+						_cellSide,
+						_cellSide);
 
-					_cells[x, y] = new Cell(game, cellBounds);
+					_cells[x, y] = new Cell(_serviceContainer, cellBounds);
 				}
 			}
 		}
 
-		public void Draw(GameTime gameTime)
+		public void LoadContents()
 		{
-			ForEachCell(cell => cell.Draw(gameTime));
+			_cells.ForEach(x => x.LoadContent());
 		}
 
-		public void Update(GameTime gameTime)
+		public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
 		{
-			var mouseState = Mouse.GetState();
-
-			if (mouseState.LeftButton == ButtonState.Pressed)
-			{
-				HandleClick(mouseState.Position);
-			}
+			_cells.ForEach(x => x.Draw(gameTime, spriteBatch));
 		}
 
-		private void HandleClick(Point point)
+		private void MouseInputHandler_MouseLeftButtonClicked(object sender, Point e)
 		{
-			if (!_boardBounds.Contains(point)) return;
+			var cell = FindCell(e);
 
-			var cell = FindCell(point);
-
-			if (cell != null && cell.SignType == SignTypes.None)
+			if (cell != null && cell.Sign == null)
 			{
 				cell.SetSign(_turn % 2 == 0 ? SignTypes.Cross : SignTypes.Zero);
 				_turn++;
@@ -90,7 +81,7 @@ namespace TickTackToe.Code.Entities
 			{
 				for (var x = 0; x < RowsCount; x++)
 				{
-					if (_cells[x, y].Contanis(point))
+					if (_cells[x, y].Contains(point))
 					{
 						return _cells[x, y];
 					}
@@ -98,17 +89,6 @@ namespace TickTackToe.Code.Entities
 			}
 
 			return null;
-		}
-
-		private void ForEachCell(Action<Cell> action)
-		{
-			for (var y = 0; y < ColumnsCount; y++)
-			{
-				for (var x = 0; x < RowsCount; x++)
-				{
-					action(_cells[x, y]);
-				}
-			}
 		}
 	}
 }

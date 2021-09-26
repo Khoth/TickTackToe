@@ -16,7 +16,8 @@ namespace TickTackToe.Code.Logic
 			{
 				new HorizontalCellIterator(),
 				new VerticalCellIterator(),
-				new DiagonalCellIterator()
+				new DiagonalCellIterator(),
+				new Diagonal2CellIterator()
 			};
 
 			_lineBuilders = _cellIterators

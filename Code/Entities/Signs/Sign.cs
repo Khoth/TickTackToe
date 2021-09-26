@@ -13,7 +13,7 @@ namespace TickTackToe.Code.Entities.Signs
 		{
 		}
 
-		public abstract SignTypes Type { get; }
+		public abstract SignType Type { get; }
 
 		public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
 		{

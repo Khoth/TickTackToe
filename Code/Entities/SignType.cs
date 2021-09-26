@@ -1,7 +1,8 @@
 ﻿namespace TickTackToe.Code.Entities
 {
-	public enum SignTypes
+	public enum SignType
 	{
+		None,
 		Cross,
 		Zero
 	}

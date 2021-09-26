@@ -10,7 +10,7 @@ namespace TickTackToe.Code.Entities.Signs
 		{
 		}
 
-		public override SignTypes Type => SignTypes.Cross;
+		public override SignType Type => SignType.Cross;
 
 		public override void LoadContent()
 		{

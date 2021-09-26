@@ -35,15 +35,15 @@ namespace TickTackToe.Code.Entities
 			Sign?.Draw(gameTime, spriteBatch);
 		}
 
-		public void SetSign(SignTypes signType)
+		public void SetSign(SignType signType)
 		{
 			switch (signType)
 			{
-				case SignTypes.Cross:
+				case SignType.Cross:
 					_sign = new Cross(_serviceContainer, _bounds);
 					break;
 
-				case SignTypes.Zero:
+				case SignType.Zero:
 					_sign = new Zero(_serviceContainer, _bounds);
 					break;
 			}

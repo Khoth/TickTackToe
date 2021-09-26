@@ -2,16 +2,20 @@
 using Microsoft.Xna.Framework.Graphics;
 using TickTackToe.Code.Extensions;
 using TickTackToe.Code.Handlers;
+using TickTackToe.Code.Logic;
 
 namespace TickTackToe.Code.Entities
 {
 	public class Board
 	{
-		private int _cellSide = 102, _turn = 1; // TODO transfer to another entities
+		// TODO transfer to another entities
+		private int _cellSide = 102, _turn = 1;
+		private SignType _winner = SignType.None; 
 
 		private readonly GameServiceContainer _serviceContainer;
 		private readonly MouseInputHandler _mouseInputHandler;
 		private readonly Cell[,] _cells;
+		private readonly BoardExaminator _boardExaminator;
 
 		private int RowsCount => _cells.GetLength(0);
 
@@ -23,6 +27,7 @@ namespace TickTackToe.Code.Entities
 			_cells = new Cell[rowsCount, columnsCount];
 			_mouseInputHandler = _serviceContainer.GetService<MouseInputHandler>();
 			_mouseInputHandler.MouseLeftButtonClicked += MouseInputHandler_MouseLeftButtonClicked;
+			_boardExaminator = new BoardExaminator();
 		}
 
 		~Board()
@@ -68,9 +73,10 @@ namespace TickTackToe.Code.Entities
 		{
 			var cell = FindCell(e);
 
-			if (cell != null && cell.Sign == null)
+			if (cell != null && cell.Sign == null && _winner == SignType.None)
 			{
-				cell.SetSign(_turn % 2 == 0 ? SignTypes.Cross : SignTypes.Zero);
+				cell.SetSign(_turn % 2 == 0 ? SignType.Cross : SignType.Zero);
+				_winner = _boardExaminator.Examine(_cells, 3); // TODO
 				_turn++;
 			}
 		}

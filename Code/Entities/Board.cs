@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TickTackToe.Code.Entities.Players;
 using TickTackToe.Code.Extensions;
 using TickTackToe.Code.Handlers;
 using TickTackToe.Code.Logic;
@@ -8,18 +9,23 @@ namespace TickTackToe.Code.Entities
 {
 	public class Board
 	{
-		// TODO transfer to another entities
-		private int _cellSide = 102, _turn = 1;
-		private SignType _winner = SignType.None; 
+		// TODO refactor
+		private const int LineLengthToWin = 3, _cellSide = 102;
 
 		private readonly GameServiceContainer _serviceContainer;
 		private readonly MouseInputHandler _mouseInputHandler;
 		private readonly Cell[,] _cells;
 		private readonly BoardExaminator _boardExaminator;
+		private readonly Player[] _players;
+
+		private int _activePlayerIndex;
+		private int _winnerPlayerIndex;
 
 		private int RowsCount => _cells.GetLength(0);
 
 		private int ColumnsCount => _cells.GetLength(1);
+
+		private Player ActivePlayer => _players[_activePlayerIndex];
 
 		public Board(GameServiceContainer serviceContainer, int rowsCount, int columnsCount)
 		{
@@ -28,6 +34,12 @@ namespace TickTackToe.Code.Entities
 			_mouseInputHandler = _serviceContainer.GetService<MouseInputHandler>();
 			_mouseInputHandler.MouseLeftButtonClicked += MouseInputHandler_MouseLeftButtonClicked;
 			_boardExaminator = new BoardExaminator();
+			_players = new Player[]
+			{
+				new HumanPlayer(SignType.Cross),
+				new AiPlayer(SignType.Zero)
+			};
+			_winnerPlayerIndex = -1;
 		}
 
 		~Board()
@@ -57,6 +69,13 @@ namespace TickTackToe.Code.Entities
 					_cells[x, y] = new Cell(_serviceContainer, cellBounds);
 				}
 			}
+
+			_activePlayerIndex = 0;
+
+			if (!ActivePlayer.IsControllable)
+			{
+				MoveUncontrollablePlayer();
+			}
 		}
 
 		public void LoadContents()
@@ -71,13 +90,17 @@ namespace TickTackToe.Code.Entities
 
 		private void MouseInputHandler_MouseLeftButtonClicked(object sender, Point e)
 		{
+			if (!ActivePlayer.IsControllable || _winnerPlayerIndex >= 0)
+			{
+				return;
+			}
+
 			var cell = FindCell(e);
 
-			if (cell != null && cell.Sign == null && _winner == SignType.None)
+			if (cell != null && cell.Sign == null)
 			{
-				cell.SetSign(_turn % 2 == 0 ? SignType.Cross : SignType.Zero);
-				_winner = _boardExaminator.Examine(_cells, 3); // TODO
-				_turn++;
+				ActivePlayer.Move(_cells, cell);
+				CheckIfWin();
 			}
 		}
 
@@ -95,6 +118,38 @@ namespace TickTackToe.Code.Entities
 			}
 
 			return null;
+		}
+
+		private void ToggleActivePlayer()
+		{
+			_activePlayerIndex = _activePlayerIndex == 1 ? 0 : 1;
+
+			if (!ActivePlayer.IsControllable)
+			{
+				MoveUncontrollablePlayer();
+			}
+		}
+
+		private void MoveUncontrollablePlayer()
+		{
+			if (_winnerPlayerIndex >= 0) return;
+
+			ActivePlayer.Move(_cells, null);
+			CheckIfWin();
+		}
+
+		private void CheckIfWin()
+		{
+			var line = _boardExaminator.Examine(_cells, LineLengthToWin);
+
+			if (line.Length >= LineLengthToWin)
+			{
+				_winnerPlayerIndex = _activePlayerIndex;
+			}
+			else
+			{
+				ToggleActivePlayer();
+			}
 		}
 	}
 }

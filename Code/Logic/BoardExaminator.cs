@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using System.Linq;
 using TickTackToe.Code.Entities;
 using TickTackToe.Code.Logic.CellIterators;
@@ -25,7 +26,7 @@ namespace TickTackToe.Code.Logic
 				.ToArray();
 		}
 
-		public SignType Examine(Cell[,] cells, int lineMinLength)
+		public Point[] Examine(Cell[,] cells, int lineMinLength)
 		{
 			for (var y = 0; y < cells.GetLength(1); y++)
 			{
@@ -39,13 +40,13 @@ namespace TickTackToe.Code.Logic
 
 						if (line.Length >= lineMinLength)
 						{
-							return cells[x, y].Sign.Type;
+							return line;
 						}
 					}
 				}
 			}
 
-			return SignType.None;
+			return Array.Empty<Point>();
 		}
 	}
 }

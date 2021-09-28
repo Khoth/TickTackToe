@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TickTackToe.Code.Entities.Players;
+using TickTackToe.Code.Enums;
 using TickTackToe.Code.Extensions;
 using TickTackToe.Code.Handlers;
 using TickTackToe.Code.Logic;

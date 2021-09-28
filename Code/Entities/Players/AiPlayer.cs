@@ -1,4 +1,6 @@
-﻿namespace TickTackToe.Code.Entities.Players
+﻿using TickTackToe.Code.Enums;
+
+namespace TickTackToe.Code.Entities.Players
 {
 	public class AiPlayer : Player
 	{

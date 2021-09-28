@@ -1,4 +1,5 @@
 ﻿using TickTackToe.Code.Entities.Base;
+using TickTackToe.Code.Enums;
 
 namespace TickTackToe.Code.Entities.Players
 {

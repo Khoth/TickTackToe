@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TickTackToe.Code.Entities.Base;
+using TickTackToe.Code.Enums;
 
 namespace TickTackToe.Code.Entities.Signs
 {

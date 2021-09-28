@@ -1,6 +1,8 @@
-﻿namespace TickTackToe.Model
+﻿using System;
+
+namespace TickTackToe.Model
 {
-	public class Point
+	public class Point : IEquatable<Point>
 	{
 		public int X { get; set; }
 
@@ -10,6 +12,14 @@
 		{
 			X = x;
 			Y = y;
+		}
+
+		public bool Equals(Point other)
+		{
+			return
+				other != null &&
+				other.X == X &&
+				other.Y == Y;
 		}
 	}
 }

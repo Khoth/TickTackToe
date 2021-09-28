@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TickTackToe.Business.LineBuildingStrategy;
 using TickTackToe.Model;
+using TickTackToe.Model.Enum;
 
 namespace TickTackToe.Business
 {
@@ -15,6 +17,11 @@ namespace TickTackToe.Business
 
 		public Point[] Build(Board board, Point from)
 		{
+			if (board[from.X, from.Y].Sign == SignType.None)
+			{
+				return Array.Empty<Point>();
+			}
+
 			var result = new List<Point>();
 			var next = new Point(from.X, from.Y);
 
